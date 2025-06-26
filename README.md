@@ -1,4 +1,4 @@
 # UltraZip
 UltraZip
 
-![screenshot](Assets/images/banner_app.png) 
+![screenshot](/Assets/images/banner_app.png) 
