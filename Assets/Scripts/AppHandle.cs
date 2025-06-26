@@ -1,8 +1,12 @@
+using Carrot;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class AppHandle : MonoBehaviour
 {
+    [Header("Main Object")]
+    public Carrot.Carrot carrot;
+    public Carrot_File file;
 
     [Header("UI")]
     public GameObject panelHome;
@@ -15,6 +19,7 @@ public class AppHandle : MonoBehaviour
 
     void Start()
     {
+        this.carrot.Load_Carrot();
         this.panelHome.SetActive(true);
         this.panelList.SetActive(false);
         UpdateStatusMenu();
@@ -27,13 +32,22 @@ public class AppHandle : MonoBehaviour
         this.imgBtnMenuMain[IndexSelMenu].color = this.colorSelMenu;
     }
 
-    public void OnStartZipFile()
+    public void BtnZipFile()
     {
+        carrot.play_sound_click();
         ZipHelper.ZipFolder("sdsd", "thanh.zip");
     }
 
+    public void BtnZipFolder()
+    {
+        carrot.play_sound_click();
+        ZipHelper.ZipFolder("sdsd", "thanh.zip");
+    }
+
+
     public void BtnShowHome()
     {
+        carrot.play_sound_click();
         IndexSelMenu = 0;
         this.panelHome.SetActive(true);
         this.panelList.SetActive(false);
@@ -42,6 +56,7 @@ public class AppHandle : MonoBehaviour
 
     public void BtnShowList()
     {
+        carrot.play_sound_click();
         IndexSelMenu = 1;
         this.panelHome.SetActive(false);
         this.panelList.SetActive(true);
@@ -50,6 +65,6 @@ public class AppHandle : MonoBehaviour
 
     public void BtnShowSetting()
     {
-
+        carrot.Create_Setting();
     }
 }
