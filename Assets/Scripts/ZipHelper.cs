@@ -1,10 +1,11 @@
 using UnityEngine;
 using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
+using UnityEngine.Events;
 
 public class ZipHelper
 {
-    public static void ZipFolder(string sourceFolderPath, string zipFilePath)
+    public static void ZipFolder(string sourceFolderPath, string zipFilePath, UnityAction<string> ActDone = null)
     {
         if (!Directory.Exists(sourceFolderPath))
         {
@@ -34,5 +35,6 @@ public class ZipHelper
         zipStream.Close();
 
         Debug.Log("Đã nén thành công: " + zipFilePath);
+        ActDone?.Invoke(zipFilePath);
     }
 }
