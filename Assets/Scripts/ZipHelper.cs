@@ -3,38 +3,59 @@ using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
 using UnityEngine.Events;
 
-public class ZipHelper
+public class ZipHelper: MonoBehaviour
 {
-    public static void ZipFolder(string sourceFolderPath, string zipFilePath, UnityAction<string> ActDone = null)
+    [Header("Object Main")]
+    public AppHandle app;
+    public void ZipFolder(string sourceFolderPath, string zipFilePath, UnityAction<string> ActDone = null)
     {
         if (!Directory.Exists(sourceFolderPath))
         {
-            Debug.LogError("Thư mục không tồn tại: " + sourceFolderPath);
+            app.carrot.Show_msg("UntraZip", "Directory does not exist:" + sourceFolderPath, Carrot.Msg_Icon.Error);
             return;
         }
 
-        FileStream fsOut = File.Create(zipFilePath);
-        ZipOutputStream zipStream = new ZipOutputStream(fsOut);
-        zipStream.SetLevel(9); // Độ nén từ 0 (không nén) đến 9 (nén cao nhất)
+        if (File.Exists(zipFilePath))
+        {
+            try
+            {
+                File.Delete(zipFilePath);
+                System.Threading.Thread.Sleep(100);
+            }
+            catch (IOException ex)
+            {
+                Debug.LogError("Không thể xóa file zip cũ: " + ex.Message);
+                return;
+            }
+        }
 
         string[] files = Directory.GetFiles(sourceFolderPath, "*", SearchOption.AllDirectories);
 
-        foreach (string file in files)
+        using (FileStream fsOut = File.Create(zipFilePath))
+        using (ZipOutputStream zipStream = new ZipOutputStream(fsOut))
         {
-            string entryName = file.Substring(sourceFolderPath.Length + 1).Replace("\\", "/"); // Tên file trong zip
-            ZipEntry newEntry = new ZipEntry(entryName);
-            newEntry.DateTime = File.GetLastWriteTime(file);
-            zipStream.PutNextEntry(newEntry);
+            zipStream.SetLevel(9);
 
-            byte[] buffer = File.ReadAllBytes(file);
-            zipStream.Write(buffer, 0, buffer.Length);
-            zipStream.CloseEntry();
+            foreach (string file in files)
+            {
+                string entryName = file.Substring(sourceFolderPath.Length + 1).Replace("\\", "/");
+                ZipEntry newEntry = new(entryName)
+                {
+                    DateTime = File.GetLastWriteTime(file)
+                };
+                zipStream.PutNextEntry(newEntry);
+
+                using (FileStream fileStream = File.OpenRead(file))
+                {
+                    fileStream.CopyTo(zipStream);
+                }
+
+                zipStream.CloseEntry();
+            }
+
+            zipStream.IsStreamOwner = true;
         }
-
-        zipStream.IsStreamOwner = true;
-        zipStream.Close();
-
-        Debug.Log("Đã nén thành công: " + zipFilePath);
         ActDone?.Invoke(zipFilePath);
     }
+
 }
