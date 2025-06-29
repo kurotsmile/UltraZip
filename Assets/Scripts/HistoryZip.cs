@@ -1,6 +1,7 @@
 using System.Collections;
 using Carrot;
 using UnityEngine;
+using UnityEngine.Purchasing;
 using UnityEngine.UI;
 
 public class HistoryZip : MonoBehaviour
@@ -53,6 +54,7 @@ public class HistoryZip : MonoBehaviour
             {
                 var IndexItem = i;
                 IDictionary dataZip = Json.Deserialize(sData) as IDictionary;
+                var urlShare = dataZip["out"].ToString() + dataZip["name"].ToString();
                 var dZip = dataZip;
                 Carrot_Box_Item itemZ = app.CreateMenuItem(trAreaContains);
                 itemZ.set_icon(app.iconFileZip);
@@ -68,6 +70,24 @@ public class HistoryZip : MonoBehaviour
                     itemZ.GetComponent<Image>().color = colorRowA;
                 else
                     itemZ.GetComponent<Image>().color = colorRowB;
+
+                Carrot_Box_Btn_Item btnShare = itemZ.create_item();
+                btnShare.set_icon(app.carrot.sp_icon_share);
+                btnShare.set_icon_color(Color.white);
+                btnShare.set_color(app.carrot.color_highlight);
+                btnShare.set_act(() =>
+                {
+                    if (app.carrot.get_tool().check_file_exist(urlShare))
+                    {
+                        new NativeShare().AddFile(urlShare)
+                        .SetSubject("Subject goes here").SetText("Hello world!").SetUrl("https://github.com/kurotsmile")
+                        .Share();
+                    }
+                    else
+                    {
+                        app.carrot.Show_msg("File delete");
+                    }
+                });
 
                 Carrot_Box_Btn_Item btnDel = itemZ.create_item();
                 btnDel.set_icon(app.carrot.sp_icon_del_data);
@@ -121,15 +141,18 @@ public class HistoryZip : MonoBehaviour
         itemName.set_title("Name File");
         itemName.set_tip(dataZ["name"].ToString());
         itemName.set_icon(app.iconFileZip);
-        
+        itemName.set_act(() => { app.ShowCopy(dataZ["name"].ToString()); });
+
         Carrot_Box_Item itemInpath = boxInfo.create_item();
         itemInpath.set_title("Path to compress files");
         itemInpath.set_tip(dataZ["in"].ToString());
         itemInpath.set_icon(app.iconZipFile);
+        itemInpath.set_act(() => app.ShowCopy(dataZ["in"].ToString()));
 
         Carrot_Box_Item itemOutpath = boxInfo.create_item();
         itemOutpath.set_title("Path to compress files");
         itemOutpath.set_tip(dataZ["out"].ToString());
         itemOutpath.set_icon(app.iconPathOut);
+        itemOutpath.set_act(()=>{app.ShowCopy(dataZ["out"].ToString());});
     }
 }

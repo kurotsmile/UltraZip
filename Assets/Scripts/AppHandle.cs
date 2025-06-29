@@ -31,6 +31,7 @@ public class AppHandle : MonoBehaviour
     public Sprite iconOpenPath;
     public Sprite iconFileZip;
     public Sprite iconCatSad;
+    public Sprite iconCopy;
 
     public Color32 colorNomalMenu;
     public Color32 colorSelMenu;
@@ -56,16 +57,9 @@ public class AppHandle : MonoBehaviour
     {
         this.ads.show_ads_Interstitial();
         carrot.play_sound_click();
-        NativeFilePicker.PickFile(folderPath=>
+        NativeFilePicker.PickFile(folderPath =>
         {
-            if (folderPath == null)
-            {
-                Debug.Log("Không chọn thư mục");
-                return;
-            }
-
-            Debug.Log("Đã chọn thư mục: " + folderPath);
-
+            if (folderPath == null) return;
             BoxZip(ZipType.file, folderPath);
         });
 
@@ -75,16 +69,9 @@ public class AppHandle : MonoBehaviour
     {
         this.ads.show_ads_Interstitial();
         carrot.play_sound_click();
-        NativeFilePicker.PickFile(folderPath=>
+        NativeFilePicker.PickFile(folderPath =>
         {
-            if (folderPath == null)
-            {
-                Debug.Log("Không chọn thư mục");
-                return;
-            }
-
-            Debug.Log("Đã chọn thư mục: " + folderPath);
-
+            if (folderPath == null) return;
             BoxZip(ZipType.file, folderPath);
         });
     }
@@ -115,7 +102,7 @@ public class AppHandle : MonoBehaviour
         {
             if (type == ZipType.folder)
             {
-                NativeFilePicker.PickFile(folderPath=>
+                NativeFilePicker.PickFile(folderPath =>
                 {
                     if (folderPath == null)
                     {
@@ -130,7 +117,7 @@ public class AppHandle : MonoBehaviour
             }
             else
             {
-                NativeFilePicker.PickFile(folderPath=>
+                NativeFilePicker.PickFile(folderPath =>
                 {
                     if (folderPath == null)
                     {
@@ -154,16 +141,16 @@ public class AppHandle : MonoBehaviour
         AddBtnOpenFolder(itemOut);
         itemOut.set_act(() =>
         {
-                NativeFilePicker.PickFile(folderPath=>
+            NativeFilePicker.PickFile(folderPath =>
+            {
+                if (folderPath == null)
                 {
-                    if (folderPath == null)
-                    {
-                        Debug.Log("Không chọn thư mục");
-                        return;
-                    }
+                    Debug.Log("Không chọn thư mục");
+                    return;
+                }
 
-                    itemOut.set_val(folderPath.Replace(FileBrowserHelpers.GetFilename(folderPath),""));
-                });
+                itemOut.set_val(folderPath.Replace(FileBrowserHelpers.GetFilename(folderPath), ""));
+            });
         });
 
         itemNameFile.set_icon(iconFileZip);
@@ -174,7 +161,7 @@ public class AppHandle : MonoBehaviour
         if (sPathIn != "")
         {
             itemIn.set_val(sPathIn);
-            itemOut.set_val(sPathIn);
+            itemOut.set_val(sPathIn.Replace(FileBrowserHelpers.GetFilename(sPathIn), ""));
             itemNameFile.set_val(FileBrowserHelpers.GetFilename(sPathIn) + ".zip");
         }
 
@@ -246,8 +233,8 @@ public class AppHandle : MonoBehaviour
         return BoxItem;
     }
 
-    public void OnTestShare()
+    public void ShowCopy(string sText)
     {
-        new NativeShare().SetSubject("Tôi chia sẻ file nén").SetText("Đây là file zip tôi vừa tạo từ Unity").Share();
+        carrot.Show_input("UltraZip", sText, sText, Window_Input_value_Type.input_field).set_icon(iconCopy);
     }
 }
