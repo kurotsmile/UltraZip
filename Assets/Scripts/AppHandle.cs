@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
+using System.IO;
+using System.Text;
 using Carrot;
+using ICSharpCode.SharpZipLib.Zip;
 using SimpleFileBrowser;
 using Unity.Burst.Intrinsics;
 using UnityEngine;
@@ -13,6 +16,7 @@ public class AppHandle : MonoBehaviour
     public Carrot_File file;
     public HistoryZip history;
     public ZipHelper zip;
+    public IronSourceAds ads;
     public GameObject itemMenuPrefab;
 
     [Header("UI")]
@@ -50,19 +54,38 @@ public class AppHandle : MonoBehaviour
 
     public void BtnZipFile()
     {
+        this.ads.show_ads_Interstitial();
         carrot.play_sound_click();
-        file.Open_file(path =>
+        NativeFilePicker.PickFile(folderPath=>
         {
-            BoxZip(ZipType.file, path[0]);
+            if (folderPath == null)
+            {
+                Debug.Log("Không chọn thư mục");
+                return;
+            }
+
+            Debug.Log("Đã chọn thư mục: " + folderPath);
+
+            BoxZip(ZipType.file, folderPath);
         });
+
     }
 
     public void BtnZipFolder()
     {
+        this.ads.show_ads_Interstitial();
         carrot.play_sound_click();
-        file.Open_folders(path =>
+        NativeFilePicker.PickFile(folderPath=>
         {
-            BoxZip(ZipType.folder, path[0]);
+            if (folderPath == null)
+            {
+                Debug.Log("Không chọn thư mục");
+                return;
+            }
+
+            Debug.Log("Đã chọn thư mục: " + folderPath);
+
+            BoxZip(ZipType.file, folderPath);
         });
     }
 
@@ -92,20 +115,32 @@ public class AppHandle : MonoBehaviour
         {
             if (type == ZipType.folder)
             {
-                file.Open_folders(path =>
+                NativeFilePicker.PickFile(folderPath=>
                 {
-                    itemNameFile.set_val(FileBrowserHelpers.GetFilename(path[0]) + ".zip");
-                    itemIn.set_val(path[0]);
-                    itemOut.set_val(path[0]);
+                    if (folderPath == null)
+                    {
+                        Debug.Log("Không chọn thư mục");
+                        return;
+                    }
+
+                    itemNameFile.set_val(FileBrowserHelpers.GetFilename(folderPath) + ".zip");
+                    itemIn.set_val(folderPath);
+                    itemOut.set_val(folderPath);
                 });
             }
             else
             {
-                file.Open_file(path =>
+                NativeFilePicker.PickFile(folderPath=>
                 {
-                    itemNameFile.set_val(FileBrowserHelpers.GetFilename(path[0]) + ".zip");
-                    itemIn.set_val(path[0]);
-                    itemOut.set_val(path[0]);
+                    if (folderPath == null)
+                    {
+                        Debug.Log("Không chọn thư mục");
+                        return;
+                    }
+
+                    itemNameFile.set_val(FileBrowserHelpers.GetFilename(folderPath) + ".zip");
+                    itemIn.set_val(folderPath);
+                    itemOut.set_val(folderPath);
                 });
             }
 
@@ -119,10 +154,16 @@ public class AppHandle : MonoBehaviour
         AddBtnOpenFolder(itemOut);
         itemOut.set_act(() =>
         {
-            file.Open_folders(path =>
-            {
-                itemOut.set_val(path[0]);
-            });
+                NativeFilePicker.PickFile(folderPath=>
+                {
+                    if (folderPath == null)
+                    {
+                        Debug.Log("Không chọn thư mục");
+                        return;
+                    }
+
+                    itemOut.set_val(folderPath.Replace(FileBrowserHelpers.GetFilename(folderPath),""));
+                });
         });
 
         itemNameFile.set_icon(iconFileZip);
@@ -140,8 +181,13 @@ public class AppHandle : MonoBehaviour
         boxZip.CreatePanelCancelDone(() =>
         {
             string sPathNew = itemOut.get_val() + "/" + itemNameFile.get_val();
-            zip.ZipFolder(itemIn.get_val(), sPathNew,path=>
+            zip.ZipFolder(itemIn.get_val(), sPathNew, path =>
             {
+                new NativeShare()
+                .AddFile(sPathNew)
+                .SetSubject("Tôi chia sẻ file nén")
+                .SetText("Đây là file zip tôi vừa tạo từ Unity")
+                .Share();
                 carrot.Show_msg("Zip file success!\nAt:" + sPathNew);
                 IDictionary dataZip = Json.Deserialize("{}") as IDictionary;
                 dataZip["name"] = itemNameFile.get_val();
@@ -164,6 +210,7 @@ public class AppHandle : MonoBehaviour
 
     public void BtnShowHome()
     {
+        this.ads.show_ads_Interstitial();
         carrot.play_sound_click();
         IndexSelMenu = 0;
         this.panelHome.SetActive(true);
@@ -173,6 +220,7 @@ public class AppHandle : MonoBehaviour
 
     public void BtnShowList()
     {
+        this.ads.show_ads_Interstitial();
         carrot.play_sound_click();
         IndexSelMenu = 1;
         this.panelHome.SetActive(false);
@@ -183,7 +231,8 @@ public class AppHandle : MonoBehaviour
 
     public void BtnShowSetting()
     {
-        carrot.Create_Setting();
+        Carrot_Box boxSetting = carrot.Create_Setting();
+        boxSetting.set_act_before_closing(this.ads.show_ads_Interstitial);
     }
 
     public Carrot_Box_Item CreateMenuItem(Transform trFathe)
@@ -195,5 +244,10 @@ public class AppHandle : MonoBehaviour
         Carrot_Box_Item BoxItem = item.GetComponent<Carrot_Box_Item>();
         BoxItem.check_type();
         return BoxItem;
+    }
+
+    public void OnTestShare()
+    {
+        new NativeShare().SetSubject("Tôi chia sẻ file nén").SetText("Đây là file zip tôi vừa tạo từ Unity").Share();
     }
 }

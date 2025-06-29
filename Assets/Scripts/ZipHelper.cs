@@ -2,12 +2,18 @@ using UnityEngine;
 using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
 using UnityEngine.Events;
-
-public class ZipHelper: MonoBehaviour
+using SimpleFileBrowser;
+using System.Text;
+public class ZipHelper : MonoBehaviour
 {
     [Header("Object Main")]
     public AppHandle app;
     public void ZipFolder(string sourceFolderPath, string zipFilePath, UnityAction<string> ActDone = null)
+    {
+        CreateZip(sourceFolderPath.Replace(FileBrowserHelpers.GetFilename(sourceFolderPath),""), zipFilePath, ActDone);
+    }
+
+    public void CreateZip(string sourceFolderPath, string zipFilePath, UnityAction<string> ActDone = null)
     {
         if (!Directory.Exists(sourceFolderPath))
         {
@@ -15,22 +21,8 @@ public class ZipHelper: MonoBehaviour
             return;
         }
 
-        if (File.Exists(zipFilePath))
-        {
-            try
-            {
-                File.Delete(zipFilePath);
-                System.Threading.Thread.Sleep(100);
-            }
-            catch (IOException ex)
-            {
-                Debug.LogError("Không thể xóa file zip cũ: " + ex.Message);
-                return;
-            }
-        }
-
         string[] files = Directory.GetFiles(sourceFolderPath, "*", SearchOption.AllDirectories);
-
+        ZipConstants.DefaultCodePage = Encoding.UTF8.CodePage;
         using (FileStream fsOut = File.Create(zipFilePath))
         using (ZipOutputStream zipStream = new ZipOutputStream(fsOut))
         {
@@ -57,5 +49,4 @@ public class ZipHelper: MonoBehaviour
         }
         ActDone?.Invoke(zipFilePath);
     }
-
 }
