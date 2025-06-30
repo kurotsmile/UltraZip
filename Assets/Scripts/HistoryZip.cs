@@ -54,12 +54,12 @@ public class HistoryZip : MonoBehaviour
             {
                 var IndexItem = i;
                 IDictionary dataZip = Json.Deserialize(sData) as IDictionary;
-                var urlShare = dataZip["out"].ToString() + dataZip["name"].ToString();
+                var urlShare = dataZip["out"].ToString();
                 var dZip = dataZip;
                 Carrot_Box_Item itemZ = app.CreateMenuItem(trAreaContains);
                 itemZ.set_icon(app.iconFileZip);
                 itemZ.set_title(dataZip["name"].ToString());
-                itemZ.set_tip(dataZip["name"].ToString());
+                itemZ.set_tip(dataZip["date"].ToString());
                 itemZ.set_act(() =>
                 {
                     app.carrot.play_sound_click();
@@ -77,16 +77,7 @@ public class HistoryZip : MonoBehaviour
                 btnShare.set_color(app.carrot.color_highlight);
                 btnShare.set_act(() =>
                 {
-                    if (app.carrot.get_tool().check_file_exist(urlShare))
-                    {
-                        new NativeShare().AddFile(urlShare)
-                        .SetSubject("Subject goes here").SetText("Hello world!").SetUrl("https://github.com/kurotsmile")
-                        .Share();
-                    }
-                    else
-                    {
-                        app.carrot.Show_msg("File delete");
-                    }
+                    new NativeShare().AddFile(urlShare).SetSubject("Subject goes here").SetText("Hello world!").SetUrl("https://github.com/kurotsmile").Share();
                 });
 
                 Carrot_Box_Btn_Item btnDel = itemZ.create_item();

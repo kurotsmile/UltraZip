@@ -1,11 +1,7 @@
 using System;
 using System.Collections;
-using System.IO;
-using System.Text;
 using Carrot;
-using ICSharpCode.SharpZipLib.Zip;
 using SimpleFileBrowser;
-using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.UI;
 public enum ZipType { file, folder }
@@ -172,14 +168,14 @@ public class AppHandle : MonoBehaviour
             {
                 new NativeShare()
                 .AddFile(sPathNew)
-                .SetSubject("Tôi chia sẻ file nén")
-                .SetText("Đây là file zip tôi vừa tạo từ Unity")
+                .SetSubject("Share compressed files")
+                .SetText("Share the created zip file")
                 .Share();
-                carrot.Show_msg("Zip file success!\nAt:" + sPathNew);
+                carrot.Show_msg("Compress files","Zip file success!\nAt:" + sPathNew);
                 IDictionary dataZip = Json.Deserialize("{}") as IDictionary;
                 dataZip["name"] = itemNameFile.get_val();
                 dataZip["in"] = itemIn.get_val();
-                dataZip["out"] = itemOut.get_val();
+                dataZip["out"] = sPathNew;
                 dataZip["date"] = new DateTime().ToString();
                 history.Add(dataZip);
             });
