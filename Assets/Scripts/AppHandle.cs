@@ -15,6 +15,7 @@ public class AppHandle : MonoBehaviour
     public ZipForm zipForm;
     public IronSourceAds ads;
     public GameObject itemMenuPrefab;
+    public AudioSource audioBk;
 
     [Header("UI")]
     public GameObject panelHome;
@@ -31,6 +32,7 @@ public class AppHandle : MonoBehaviour
     public Sprite iconCopy;
     public Sprite iconAdvanced;
     public Sprite iconExportFile;
+    public Sprite iconCompressionlevel;
 
     public Color32 colorNomalMenu;
     public Color32 colorSelMenu;
@@ -44,6 +46,7 @@ public class AppHandle : MonoBehaviour
         history.OnLoad();
         UpdateStatusMenu();
         if (carrot.os_app == OS.Window) file.type = Carrot_File_Type.StandaloneFileBrowser;
+        this.carrot.game.load_bk_music(audioBk);
     }
 
     private void UpdateStatusMenu()
@@ -53,14 +56,14 @@ public class AppHandle : MonoBehaviour
         this.imgBtnMenuMain[IndexSelMenu].color = this.colorSelMenu;
     }
 
-    public void BtnZipFile()
+    public void BtnZipNormal()
     {
         this.ads.show_ads_Interstitial();
         carrot.play_sound_click();
-        zipForm.SelFiles(folderPath =>zipForm.BoxZip(folderPath,ZipType.Advanced));
+        zipForm.SelFiles(folderPath =>zipForm.BoxZip(folderPath,ZipType.Normal));
     }
 
-    public void BtnZipFolder()
+    public void BtnZipAdvanced()
     {
         this.ads.show_ads_Interstitial();
         carrot.play_sound_click();

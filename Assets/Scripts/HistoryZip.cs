@@ -30,6 +30,9 @@ public class HistoryZip : MonoBehaviour
     {
         if (index < 0 || index >= length) return;
         
+        IDictionary dataZip = Json.Deserialize(PlayerPrefs.GetString("h_"+index)) as IDictionary;
+        var pathFileDel = dataZip["out"].ToString();
+        if (app.carrot.get_tool().check_file_exist(pathFileDel)) app.zip.Delete(pathFileDel);
         PlayerPrefs.DeleteKey("h_" + index);
         for (int i = index + 1; i < length; i++)
         {
@@ -80,7 +83,7 @@ public class HistoryZip : MonoBehaviour
                 {
                     app.carrot.play_sound_click();
                     app.carrot.play_vibrate();
-                    new NativeShare().AddFile(urlShare).SetSubject("Subject goes here").SetText("Hello world!").SetUrl("https://github.com/kurotsmile").Share();
+                    new NativeShare().AddFile(urlShare).SetSubject("Here is my zip file").SetText(dZip["name"].ToString()).SetUrl("https://play.google.com/store/apps/details?id=com.carrotstore.loverlyai").Share();
                 });
 
                 Carrot_Box_Btn_Item btnExport = itemZ.create_item();
@@ -119,7 +122,7 @@ public class HistoryZip : MonoBehaviour
             itemSad.set_title("Empty list");
             itemSad.set_tip("No items have been compressed yet.");
             itemSad.set_type(Box_Item_Type.box_value_txt);
-            itemSad.set_val("Choose 1 of the 2 functions below to compress your files and folders.");
+            itemSad.set_val("Start compressing files and you can manage them here");
             itemSad.GetComponent<Image>().color = colorRowA;
 
             Carrot_Box_Item itemZipFile = app.CreateMenuItem(trAreaContains);
@@ -127,16 +130,8 @@ public class HistoryZip : MonoBehaviour
             itemZipFile.set_title("Add file");
             itemZipFile.set_tip("Select file to compress");
             app.zipForm.AddBtnOpenFolder(itemZipFile);
-            itemZipFile.set_act(app.BtnZipFile);
+            itemZipFile.set_act(app.BtnZipNormal);
             itemZipFile.GetComponent<Image>().color = colorRowB;
-
-            Carrot_Box_Item itemZipFolder = app.CreateMenuItem(trAreaContains);
-            itemZipFolder.set_icon(app.iconZipFolder);
-            itemZipFolder.set_title("Add folder");
-            itemZipFolder.set_tip("Select folder to compress");
-            app.zipForm.AddBtnOpenFolder(itemZipFolder);
-            itemZipFolder.set_act(app.BtnZipFolder);
-            itemZipFolder.GetComponent<Image>().color = colorRowA;
         }
     }
 
@@ -153,9 +148,10 @@ public class HistoryZip : MonoBehaviour
         itemName.set_act(() => { app.ShowCopy(dataZ["name"].ToString()); });
 
         IList listUrl = dataZ["in"] as IList;
-        for (int i = 0; i < listUrl.Count; i++) {
+        for (int i = 0; i < listUrl.Count; i++)
+        {
             Carrot_Box_Item itemInpath = boxInfo.create_item();
-            itemInpath.set_title("File "+(i+1));
+            itemInpath.set_title("File " + (i + 1));
             itemInpath.set_tip(listUrl[i].ToString());
             itemInpath.set_icon(app.iconZipFile);
             itemInpath.set_act(() => app.ShowCopy(listUrl[i].ToString()));
@@ -165,6 +161,16 @@ public class HistoryZip : MonoBehaviour
         itemOutpath.set_title("Path to compress files");
         itemOutpath.set_tip(dataZ["out"].ToString());
         itemOutpath.set_icon(app.iconPathOut);
-        itemOutpath.set_act(()=>{app.ShowCopy(dataZ["out"].ToString());});
+        itemOutpath.set_act(() => { app.ShowCopy(dataZ["out"].ToString()); });
+
+        Carrot_Box_Item itemLevel = boxInfo.create_item();
+        itemLevel.set_title("Compression level");
+        itemLevel.set_tip("Level " + dataZ["level"].ToString());
+        itemLevel.set_icon(app.iconCompressionlevel);
+        
+        Carrot_Box_Item itemDate = boxInfo.create_item();
+        itemDate.set_title("Date created");
+        itemDate.set_tip(dataZ["date"].ToString());
+        itemDate.set_icon(app.carrot.sp_icon_table_color);
     }
 }
