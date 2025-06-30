@@ -1,7 +1,7 @@
 using System.Collections;
+using System.Collections.Generic;
 using Carrot;
 using UnityEngine;
-using UnityEngine.Purchasing;
 using UnityEngine.UI;
 
 public class HistoryZip : MonoBehaviour
@@ -56,10 +56,11 @@ public class HistoryZip : MonoBehaviour
                 IDictionary dataZip = Json.Deserialize(sData) as IDictionary;
                 var urlShare = dataZip["out"].ToString();
                 var dZip = dataZip;
+                IList listUrl = dataZip["in"] as IList;
                 Carrot_Box_Item itemZ = app.CreateMenuItem(trAreaContains);
                 itemZ.set_icon(app.iconFileZip);
                 itemZ.set_title(dataZip["name"].ToString());
-                itemZ.set_tip(dataZip["date"].ToString());
+                itemZ.set_tip(listUrl.Count+" File - "+dataZip["date"].ToString());
                 itemZ.set_act(() =>
                 {
                     app.carrot.play_sound_click();
@@ -77,7 +78,23 @@ public class HistoryZip : MonoBehaviour
                 btnShare.set_color(app.carrot.color_highlight);
                 btnShare.set_act(() =>
                 {
+                    app.carrot.play_sound_click();
+                    app.carrot.play_vibrate();
                     new NativeShare().AddFile(urlShare).SetSubject("Subject goes here").SetText("Hello world!").SetUrl("https://github.com/kurotsmile").Share();
+                });
+
+                Carrot_Box_Btn_Item btnExport = itemZ.create_item();
+                btnExport.set_icon(app.iconExportFile);
+                btnExport.set_icon_color(Color.white);
+                btnExport.set_color(app.carrot.color_highlight);
+                btnExport.set_act(() =>
+                {
+                    app.carrot.play_sound_click();
+                    app.carrot.play_vibrate();
+                    app.file.Save_file(spath =>
+                    {
+                        app.zip.Export(urlShare, spath[0]);
+                    });
                 });
 
                 Carrot_Box_Btn_Item btnDel = itemZ.create_item();
@@ -86,6 +103,7 @@ public class HistoryZip : MonoBehaviour
                 btnDel.set_color(app.carrot.color_highlight);
                 btnDel.set_act(() =>
                 {
+                    app.carrot.play_vibrate();
                     app.carrot.play_sound_click();
                     DeleteItem(IndexItem);
                     ShowList();
@@ -108,7 +126,7 @@ public class HistoryZip : MonoBehaviour
             itemZipFile.set_icon(app.iconZipFile);
             itemZipFile.set_title("Add file");
             itemZipFile.set_tip("Select file to compress");
-            app.AddBtnOpenFolder(itemZipFile);
+            app.zipForm.AddBtnOpenFolder(itemZipFile);
             itemZipFile.set_act(app.BtnZipFile);
             itemZipFile.GetComponent<Image>().color = colorRowB;
 
@@ -116,7 +134,7 @@ public class HistoryZip : MonoBehaviour
             itemZipFolder.set_icon(app.iconZipFolder);
             itemZipFolder.set_title("Add folder");
             itemZipFolder.set_tip("Select folder to compress");
-            app.AddBtnOpenFolder(itemZipFolder);
+            app.zipForm.AddBtnOpenFolder(itemZipFolder);
             itemZipFolder.set_act(app.BtnZipFolder);
             itemZipFolder.GetComponent<Image>().color = colorRowA;
         }
@@ -134,11 +152,14 @@ public class HistoryZip : MonoBehaviour
         itemName.set_icon(app.iconFileZip);
         itemName.set_act(() => { app.ShowCopy(dataZ["name"].ToString()); });
 
-        Carrot_Box_Item itemInpath = boxInfo.create_item();
-        itemInpath.set_title("Path to compress files");
-        itemInpath.set_tip(dataZ["in"].ToString());
-        itemInpath.set_icon(app.iconZipFile);
-        itemInpath.set_act(() => app.ShowCopy(dataZ["in"].ToString()));
+        IList listUrl = dataZ["in"] as IList;
+        for (int i = 0; i < listUrl.Count; i++) {
+            Carrot_Box_Item itemInpath = boxInfo.create_item();
+            itemInpath.set_title("File "+(i+1));
+            itemInpath.set_tip(listUrl[i].ToString());
+            itemInpath.set_icon(app.iconZipFile);
+            itemInpath.set_act(() => app.ShowCopy(listUrl[i].ToString()));
+        }
 
         Carrot_Box_Item itemOutpath = boxInfo.create_item();
         itemOutpath.set_title("Path to compress files");

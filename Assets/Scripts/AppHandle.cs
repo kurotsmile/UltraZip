@@ -4,7 +4,7 @@ using Carrot;
 using SimpleFileBrowser;
 using UnityEngine;
 using UnityEngine.UI;
-public enum ZipType { file, folder }
+public enum ZipType {Normal,Advanced}
 public class AppHandle : MonoBehaviour
 {
     [Header("Main Object")]
@@ -12,6 +12,7 @@ public class AppHandle : MonoBehaviour
     public Carrot_File file;
     public HistoryZip history;
     public ZipHelper zip;
+    public ZipForm zipForm;
     public IronSourceAds ads;
     public GameObject itemMenuPrefab;
 
@@ -28,6 +29,8 @@ public class AppHandle : MonoBehaviour
     public Sprite iconFileZip;
     public Sprite iconCatSad;
     public Sprite iconCopy;
+    public Sprite iconAdvanced;
+    public Sprite iconExportFile;
 
     public Color32 colorNomalMenu;
     public Color32 colorSelMenu;
@@ -40,6 +43,7 @@ public class AppHandle : MonoBehaviour
         this.panelList.SetActive(false);
         history.OnLoad();
         UpdateStatusMenu();
+        if (carrot.os_app == OS.Window) file.type = Carrot_File_Type.StandaloneFileBrowser;
     }
 
     private void UpdateStatusMenu()
@@ -53,143 +57,19 @@ public class AppHandle : MonoBehaviour
     {
         this.ads.show_ads_Interstitial();
         carrot.play_sound_click();
-        NativeFilePicker.PickFile(folderPath =>
-        {
-            if (folderPath == null) return;
-            BoxZip(ZipType.file, folderPath);
-        });
-
+        zipForm.SelFiles(folderPath =>zipForm.BoxZip(folderPath,ZipType.Advanced));
     }
 
     public void BtnZipFolder()
     {
         this.ads.show_ads_Interstitial();
         carrot.play_sound_click();
-        NativeFilePicker.PickFile(folderPath =>
+        zipForm.SelFiles(folderPath =>
         {
-            if (folderPath == null) return;
-            BoxZip(ZipType.file, folderPath);
+            zipForm.BoxZip(folderPath,ZipType.Advanced);
         });
     }
 
-    private void BoxZip(ZipType type, string sPathIn = "")
-    {
-        Carrot_Box boxZip = carrot.Create_Box();
-        if (type == ZipType.file)
-        {
-            boxZip.set_title("Zip File");
-            boxZip.set_icon(iconZipFile);
-        }
-        else
-        {
-            boxZip.set_title("Zip Folder");
-            boxZip.set_icon(iconZipFile);
-        }
-
-        Carrot_Box_Item itemIn = boxZip.create_item();
-        Carrot_Box_Item itemOut = boxZip.create_item();
-        Carrot_Box_Item itemNameFile = boxZip.create_item();
-        itemIn.set_icon(iconZipFolder);
-        itemIn.set_title("File in");
-        itemIn.set_tip("Select file to zip");
-        itemIn.set_type(Box_Item_Type.box_value_txt);
-        AddBtnOpenFolder(itemIn);
-        itemIn.set_act(() =>
-        {
-            if (type == ZipType.folder)
-            {
-                NativeFilePicker.PickFile(folderPath =>
-                {
-                    if (folderPath == null)
-                    {
-                        Debug.Log("Không chọn thư mục");
-                        return;
-                    }
-
-                    itemNameFile.set_val(FileBrowserHelpers.GetFilename(folderPath) + ".zip");
-                    itemIn.set_val(folderPath);
-                    itemOut.set_val(folderPath);
-                });
-            }
-            else
-            {
-                NativeFilePicker.PickFile(folderPath =>
-                {
-                    if (folderPath == null)
-                    {
-                        Debug.Log("Không chọn thư mục");
-                        return;
-                    }
-
-                    itemNameFile.set_val(FileBrowserHelpers.GetFilename(folderPath) + ".zip");
-                    itemIn.set_val(folderPath);
-                    itemOut.set_val(folderPath);
-                });
-            }
-
-        });
-
-
-        itemOut.set_type(Box_Item_Type.box_value_txt);
-        itemOut.set_icon(iconPathOut);
-        itemOut.set_title("File out");
-        itemOut.set_tip("Select folder create file zip");
-        AddBtnOpenFolder(itemOut);
-        itemOut.set_act(() =>
-        {
-            NativeFilePicker.PickFile(folderPath =>
-            {
-                if (folderPath == null)
-                {
-                    Debug.Log("Không chọn thư mục");
-                    return;
-                }
-
-                itemOut.set_val(folderPath.Replace(FileBrowserHelpers.GetFilename(folderPath), ""));
-            });
-        });
-
-        itemNameFile.set_icon(iconFileZip);
-        itemNameFile.set_title("Name file zip");
-        itemNameFile.set_tip("Rename the zip file you are about to create.");
-        itemNameFile.set_type(Box_Item_Type.box_value_input);
-
-        if (sPathIn != "")
-        {
-            itemIn.set_val(sPathIn);
-            itemOut.set_val(sPathIn.Replace(FileBrowserHelpers.GetFilename(sPathIn), ""));
-            itemNameFile.set_val(FileBrowserHelpers.GetFilename(sPathIn) + ".zip");
-        }
-
-        boxZip.CreatePanelCancelDone(() =>
-        {
-            string sPathNew = itemOut.get_val() + "/" + itemNameFile.get_val();
-            zip.ZipFolder(itemIn.get_val(), sPathNew, path =>
-            {
-                new NativeShare()
-                .AddFile(sPathNew)
-                .SetSubject("Share compressed files")
-                .SetText("Share the created zip file")
-                .Share();
-                carrot.Show_msg("Compress files","Zip file success!\nAt:" + sPathNew);
-                IDictionary dataZip = Json.Deserialize("{}") as IDictionary;
-                dataZip["name"] = itemNameFile.get_val();
-                dataZip["in"] = itemIn.get_val();
-                dataZip["out"] = sPathNew;
-                dataZip["date"] = new DateTime().ToString();
-                history.Add(dataZip);
-            });
-        });
-    }
-
-    public void AddBtnOpenFolder(Carrot_Box_Item item)
-    {
-        Carrot_Box_Btn_Item btnSelPath = item.create_item();
-        btnSelPath.set_icon(iconOpenPath);
-        btnSelPath.set_icon_color(Color.white);
-        btnSelPath.set_color(carrot.color_highlight);
-        Destroy(btnSelPath.gameObject.GetComponent<Button>());
-    }
 
     public void BtnShowHome()
     {
