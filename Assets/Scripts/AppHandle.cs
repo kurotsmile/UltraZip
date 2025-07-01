@@ -41,6 +41,13 @@ public class AppHandle : MonoBehaviour
     void Start()
     {
         this.carrot.Load_Carrot();
+
+        this.ads.On_Load();
+
+        this.carrot.act_buy_ads_success = this.ads.RemoveAds;
+        this.carrot.game.act_click_watch_ads_in_music_bk = this.ads.ShowRewardedVideo;
+        this.ads.onRewardedSuccess = this.carrot.game.OnRewardedSuccess;
+
         this.panelHome.SetActive(true);
         this.panelList.SetActive(false);
         history.OnLoad();

@@ -86,6 +86,7 @@ public class HistoryZip : MonoBehaviour
                     new NativeShare().AddFile(urlShare).SetSubject("Here is my zip file").SetText(dZip["name"].ToString()).SetUrl("https://play.google.com/store/apps/details?id=com.carrotstore.loverlyai").Share();
                 });
 
+            /*
                 Carrot_Box_Btn_Item btnExport = itemZ.create_item();
                 btnExport.set_icon(app.iconExportFile);
                 btnExport.set_icon_color(Color.white);
@@ -99,6 +100,7 @@ public class HistoryZip : MonoBehaviour
                         app.zip.Export(urlShare, spath[0]);
                     });
                 });
+            */
 
                 Carrot_Box_Btn_Item btnDel = itemZ.create_item();
                 btnDel.set_icon(app.carrot.sp_icon_del_data);
