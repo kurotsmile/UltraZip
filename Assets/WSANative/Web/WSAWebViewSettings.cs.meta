@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: de2d64f095b3f3945a071602f5b97453
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 54715
+  packageName: Native Plugin for Universal Windows Platform
+  packageVersion: 3.0.0
+  assetPath: Assets/WSANative/Web/WSAWebViewSettings.cs
+  uploadId: 666178

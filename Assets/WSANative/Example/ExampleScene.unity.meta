@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 64f6b774abc568840b61950efc6c3ffd
+timeCreated: 1456828671
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 54715
+  packageName: Native Plugin for Universal Windows Platform
+  packageVersion: 3.0.0
+  assetPath: Assets/WSANative/Example/ExampleScene.unity
+  uploadId: 666178

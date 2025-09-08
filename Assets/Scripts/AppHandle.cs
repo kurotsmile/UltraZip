@@ -1,12 +1,17 @@
 using System;
 using System.Collections;
 using Carrot;
+using CI.WSANative.Common;
 using SimpleFileBrowser;
 using UnityEngine;
 using UnityEngine.UI;
 public enum ZipType {Normal,Advanced}
 public class AppHandle : MonoBehaviour
 {
+    [Header("Config")]
+    public string NameOsWindow = "";
+    public string NameOsAndroid = "";
+
     [Header("Main Object")]
     public Carrot.Carrot carrot;
     public Carrot_File file;
@@ -18,6 +23,8 @@ public class AppHandle : MonoBehaviour
     public AudioSource audioBk;
 
     [Header("UI")]
+    public Text txtNameAppHomeL;
+    public Text txtNameAppHomeP;
     public GameObject panelHome;
     public GameObject panelList;
     public Image[] imgBtnMenuMain;
@@ -52,9 +59,27 @@ public class AppHandle : MonoBehaviour
         this.panelList.SetActive(false);
         history.OnLoad();
         UpdateStatusMenu();
-        if (carrot.os_app == OS.Window) file.type = Carrot_File_Type.StandaloneFileBrowser;
+        if (carrot.os_app == OS.Window)
+        {
+            file.type = Carrot_File_Type.StandaloneFileBrowser;
+            this.txtNameAppHomeL.text = NameOsWindow;
+            this.txtNameAppHomeP.text = NameOsWindow;
+        }
+        else
+        {
+            file.type = Carrot_File_Type.SimpleFileBrowser;
+            this.txtNameAppHomeL.text = NameOsAndroid;
+            this.txtNameAppHomeP.text = NameOsAndroid;
+        }
+
         this.carrot.game.load_bk_music(audioBk);
     }
+
+    public void Awake()
+    {
+        WSANativeCore.Initialise();
+    }
+
 
     private void UpdateStatusMenu()
     {

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5e7bf3b92c7aadc47afc5e369076fdc7
+timeCreated: 1454855542
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 54715
+  packageName: Native Plugin for Universal Windows Platform
+  packageVersion: 3.0.0
+  assetPath: Assets/WSANative/readme.txt
+  uploadId: 666178

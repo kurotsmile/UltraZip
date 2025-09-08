@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Carrot;
+using CI.WSANative.Pickers;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -83,9 +84,9 @@ public class ZipForm : MonoBehaviour
             itemLevel.slider_val.wholeNumbers = true;
             itemLevel.set_val("9");
             itemLevel.slider_val.onValueChanged.RemoveAllListeners();
-            itemLevel.slider_val.onValueChanged.AddListener((value)=>
+            itemLevel.slider_val.onValueChanged.AddListener((value) =>
             {
-                itemLevel.set_tip("Level "+value.ToString());
+                itemLevel.set_tip("Level " + value.ToString());
             });
         }
 
@@ -103,7 +104,7 @@ public class ZipForm : MonoBehaviour
 
             int level = 9;
             if (type == ZipType.Advanced) level = int.Parse(this.itemLevel.get_val());
-            app.zip.ZipFiles(urls, itemNameFile.get_val(),level, path =>
+            app.zip.ZipFiles(urls, itemNameFile.get_val(), level, path =>
             {
                 new NativeShare()
                 .AddFile(path)
@@ -184,10 +185,16 @@ public class ZipForm : MonoBehaviour
         }
         else
         {
-            app.file.Open_file(folderPath =>
+            WSANativeFilePicker.PickSingleFile("Select", WSAPickerViewMode.Thumbnail, WSAPickerLocationId.PicturesLibrary, new[] { "*" }, result =>
             {
-                actDone?.Invoke(folderPath);
+                if (result != null)
+                {
+                    string[] sPath = new string[1];
+                    sPath[0] = result.Path;
+                    actDone?.Invoke(sPath);
+                }
             });
+
         }
     }
 }

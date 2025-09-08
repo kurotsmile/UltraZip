@@ -1,8 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
+using CI.WSANative.Pickers;
 using Carrot;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 
 public class HistoryZip : MonoBehaviour
 {
@@ -29,8 +32,8 @@ public class HistoryZip : MonoBehaviour
     public void DeleteItem(int index)
     {
         if (index < 0 || index >= length) return;
-        
-        IDictionary dataZip = Json.Deserialize(PlayerPrefs.GetString("h_"+index)) as IDictionary;
+
+        IDictionary dataZip = Json.Deserialize(PlayerPrefs.GetString("h_" + index)) as IDictionary;
         var pathFileDel = dataZip["out"].ToString();
         if (app.carrot.get_tool().check_file_exist(pathFileDel)) app.zip.Delete(pathFileDel);
         PlayerPrefs.DeleteKey("h_" + index);
@@ -41,7 +44,7 @@ public class HistoryZip : MonoBehaviour
             PlayerPrefs.SetString(newKey, PlayerPrefs.GetString(nextKey, ""));
             PlayerPrefs.DeleteKey(nextKey);
         }
-        
+
         length--;
         PlayerPrefs.SetInt("lengthHistory", length);
     }
@@ -50,7 +53,7 @@ public class HistoryZip : MonoBehaviour
     {
         app.carrot.clear_contain(trAreaContains);
         int countFile = 0;
-        for (int i = length-1; i >=0; i--)
+        for (int i = length - 1; i >= 0; i--)
         {
             string sData = PlayerPrefs.GetString("h_" + i, "");
             if (sData != "")
@@ -63,7 +66,7 @@ public class HistoryZip : MonoBehaviour
                 Carrot_Box_Item itemZ = app.CreateMenuItem(trAreaContains);
                 itemZ.set_icon(app.iconFileZip);
                 itemZ.set_title(dataZip["name"].ToString());
-                itemZ.set_tip(listUrl.Count+" File - "+dataZip["date"].ToString());
+                itemZ.set_tip(listUrl.Count + " File - " + dataZip["date"].ToString());
                 itemZ.set_act(() =>
                 {
                     app.carrot.play_sound_click();
@@ -75,32 +78,76 @@ public class HistoryZip : MonoBehaviour
                 else
                     itemZ.GetComponent<Image>().color = colorRowB;
 
-                Carrot_Box_Btn_Item btnShare = itemZ.create_item();
-                btnShare.set_icon(app.carrot.sp_icon_share);
-                btnShare.set_icon_color(Color.white);
-                btnShare.set_color(app.carrot.color_highlight);
-                btnShare.set_act(() =>
+                if (app.carrot.os_app == OS.Android)
                 {
-                    app.carrot.play_sound_click();
-                    app.carrot.play_vibrate();
-                    new NativeShare().AddFile(urlShare).SetSubject("Here is my zip file").SetText(dZip["name"].ToString()).SetUrl("https://play.google.com/store/apps/details?id=com.carrotstore.loverlyai").Share();
-                });
-
-            /*
-                Carrot_Box_Btn_Item btnExport = itemZ.create_item();
-                btnExport.set_icon(app.iconExportFile);
-                btnExport.set_icon_color(Color.white);
-                btnExport.set_color(app.carrot.color_highlight);
-                btnExport.set_act(() =>
-                {
-                    app.carrot.play_sound_click();
-                    app.carrot.play_vibrate();
-                    app.file.Save_file(spath =>
+                    Carrot_Box_Btn_Item btnShare = itemZ.create_item();
+                    btnShare.set_icon(app.carrot.sp_icon_share);
+                    btnShare.set_icon_color(Color.white);
+                    btnShare.set_color(app.carrot.color_highlight);
+                    btnShare.set_act(() =>
                     {
-                        app.zip.Export(urlShare, spath[0]);
+                        app.carrot.play_sound_click();
+                        app.carrot.play_vibrate();
+                        new NativeShare().AddFile(urlShare).SetSubject("Here is my zip file").SetText(dZip["name"].ToString()).SetUrl("https://play.google.com/store/apps/details?id=com.carrotstore.loverlyai").Share();
                     });
-                });
-            */
+                }
+                else
+                {
+                    Carrot_Box_Btn_Item btnExport = itemZ.create_item();
+                    btnExport.set_icon(app.iconExportFile);
+                    btnExport.set_icon_color(Color.white);
+                    btnExport.set_color(app.carrot.color_highlight);
+                    btnExport.set_act(() =>
+                    {
+                        app.carrot.play_sound_click();
+                        app.carrot.play_vibrate();
+
+                        WSANativeFilePicker.PickSaveFile(
+                            "Save",
+                            ".zip",
+                            "Zip File",
+                            WSAPickerLocationId.DocumentsLibrary,
+                            new List<KeyValuePair<string, IList<string>>>()
+                            {
+                                new KeyValuePair<string, IList<string>>(
+                                    "Zip Files", new List<string>() { ".zip" })
+                            },
+                            result =>
+                            {
+                                if (!string.IsNullOrEmpty(result.Path))
+                                {
+                                    // Nén file
+                                    using (var zipStream = new FileStream(listUrl[0].ToString(), FileMode.Create))
+                                    using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
+                                    {
+                                        var entry = archive.CreateEntry(Path.GetFileName(result.Path));
+
+                                        using (var entryStream = entry.Open())
+                                        using (var input = new FileStream(result.Path, FileMode.Open, FileAccess.Read))
+                                        {
+                                            input.CopyTo(entryStream);
+                                        }
+                                    }
+
+                                    Debug.Log("Đã nén xong vào: " + result.Path);
+                                }
+                            }
+                        );
+
+
+                        /*
+                        WSANativeFilePicker.PickSaveFile("Save", "*", "Save Zip File", WSAPickerLocationId.DocumentsLibrary, new List<KeyValuePair<string, IList<string>>>() { new KeyValuePair<string, IList<string>>("Zip Files", new List<string>() { "*" }) }, result =>
+                        {
+                            app.zip.Export(urlShare, result.Path);                       
+                        });
+                        
+                            app.file.Save_file(spath =>
+                                {
+                                    app.zip.Export(urlShare, spath[0]);
+                                },null,dataZip["name"].ToString());
+                        */
+                    });
+                }
 
                 Carrot_Box_Btn_Item btnDel = itemZ.create_item();
                 btnDel.set_icon(app.carrot.sp_icon_del_data);
@@ -169,7 +216,7 @@ public class HistoryZip : MonoBehaviour
         itemLevel.set_title("Compression level");
         itemLevel.set_tip("Level " + dataZ["level"].ToString());
         itemLevel.set_icon(app.iconCompressionlevel);
-        
+
         Carrot_Box_Item itemDate = boxInfo.create_item();
         itemDate.set_title("Date created");
         itemDate.set_tip(dataZ["date"].ToString());

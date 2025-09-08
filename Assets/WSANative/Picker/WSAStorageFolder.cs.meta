@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 833cfc402652b074a8ffa053da49fa5e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 54715
+  packageName: Native Plugin for Universal Windows Platform
+  packageVersion: 3.0.0
+  assetPath: Assets/WSANative/Picker/WSAStorageFolder.cs
+  uploadId: 666178

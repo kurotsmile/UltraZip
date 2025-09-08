@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 75a2f5f12381cd249a8d7ab140698f7b
+timeCreated: 1511735328
+licenseType: Store
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 54715
+  packageName: Native Plugin for Universal Windows Platform
+  packageVersion: 3.0.0
+  assetPath: Assets/WSANative/Twitter/WSATwitterHeaderGenerator.cs
+  uploadId: 666178
