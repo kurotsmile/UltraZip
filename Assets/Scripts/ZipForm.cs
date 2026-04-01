@@ -102,9 +102,22 @@ public class ZipForm : MonoBehaviour
                 }
             }
 
+            if (urls.Count == 0)
+            {
+                app.carrot.Show_msg("Compress files", "Please add at least one file to compress.");
+                return false;
+            }
+
+            string zipFileName = itemNameFile.get_val().Trim();
+            if (string.IsNullOrEmpty(zipFileName))
+            {
+                app.carrot.Show_msg("Compress files", "Please enter a zip file name.");
+                return false;
+            }
+
             int level = 9;
             if (type == ZipType.Advanced) level = int.Parse(this.itemLevel.get_val());
-            app.zip.ZipFiles(urls, itemNameFile.get_val(), level, path =>
+            app.zip.ZipFiles(urls, zipFileName, level, path =>
             {
                 new NativeShare()
                 .AddFile(path)
@@ -123,6 +136,8 @@ public class ZipForm : MonoBehaviour
                     dataZip["level"] = itemLevel.get_val();
                 app.history.Add(dataZip);
             });
+
+            return true;
         });
 
         Carrot_Button_Item btnAddFile = panel.create_btn("AddFile");
