@@ -5,7 +5,7 @@ using CI.WSANative.Common;
 using SimpleFileBrowser;
 using UnityEngine;
 using UnityEngine.UI;
-public enum ZipType {Normal,Advanced}
+public enum ZipType { Normal, Advanced }
 public class AppHandle : MonoBehaviour
 {
     [Header("Config")]
@@ -92,7 +92,7 @@ public class AppHandle : MonoBehaviour
     {
         this.ads.show_ads_Interstitial();
         carrot.play_sound_click();
-        zipForm.SelFiles(folderPath =>zipForm.BoxZip(folderPath,ZipType.Normal));
+        zipForm.SelFiles(folderPath => zipForm.BoxZip(folderPath, ZipType.Normal));
     }
 
     public void BtnZipAdvanced()
@@ -101,7 +101,7 @@ public class AppHandle : MonoBehaviour
         carrot.play_sound_click();
         zipForm.SelFiles(folderPath =>
         {
-            zipForm.BoxZip(folderPath,ZipType.Advanced);
+            zipForm.BoxZip(folderPath, ZipType.Advanced);
         });
     }
 
